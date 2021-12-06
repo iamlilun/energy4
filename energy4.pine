@@ -246,8 +246,8 @@ down = ta.rma(-math.min(ta.change(src), 0), rsiLen)
 rsi = down == 0 ? 100 : up == 0 ? 0 : 100 - 100 / (1 + up / down) //計算RSI..
 bool isRsiPosDiv = positive_divergence(rsi, rsiOversold) > 0 //判斷RSI是否看漲背離
 bool isRsiNegDiv = negative_divergence(rsi, rsiOverbought) > 0 //判斷RSI是否看跌背離
-plotshape(isRsiPosDiv, text='RSI P', style=shape.labelup, color=color.new(color.lime, 0), textcolor=color.new(color.black, 0), location=location.belowbar)
-plotshape(isRsiNegDiv, text='RSI N', style=shape.labeldown, color=color.new(color.red, 0), textcolor=color.new(color.black, 0), location=location.abovebar)
+// plotshape(isRsiPosDiv, text='RSI P', style=shape.labelup, color=color.new(color.lime, 0), textcolor=color.new(color.black, 0), location=location.belowbar)
+// plotshape(isRsiNegDiv, text='RSI N', style=shape.labeldown, color=color.new(color.red, 0), textcolor=color.new(color.black, 0), location=location.abovebar)
 
 ///
 /// OSC蔡金的漲跌判斷
