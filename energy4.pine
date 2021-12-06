@@ -214,8 +214,8 @@ int mfiOverbought = 80
 int mfiOversold = 20
 bool isMfiPosDiv = positive_divergence(mf, mfiOversold) > 0 //判斷MFI是否看漲背離
 bool isMfiNegDiv = negative_divergence(mf, mfiOverbought) > 0 //判斷MFI是否看跌背離
-plotshape(isMfiPosDiv, text='MFI P', style=shape.labelup, color=color.new(color.lime, 0), textcolor=color.new(color.black, 0), location=location.belowbar)
-plotshape(isMfiNegDiv, text='MFI N', style=shape.labeldown, color=color.new(color.red, 0), textcolor=color.new(color.black, 0), location=location.abovebar)
+// plotshape(isMfiPosDiv, text='MFI P', style=shape.labelup, color=color.new(color.lime, 0), textcolor=color.new(color.black, 0), location=location.belowbar)
+// plotshape(isMfiNegDiv, text='MFI N', style=shape.labeldown, color=color.new(color.red, 0), textcolor=color.new(color.black, 0), location=location.abovebar)
 
 ///
 /// RVI 背離判斷
@@ -230,8 +230,8 @@ int rviOverbought = 80
 int rviOversold = 20
 bool isRviPosDiv = positive_divergence(rvi, rviOversold) > 0 //判斷RVI是否看漲背離
 bool isRviNegDiv = negative_divergence(rvi, rviOverbought) > 0 //判斷RVI是否看跌背離
-plotshape(isRviPosDiv, text='RVI P', style=shape.labelup, color=color.new(color.lime, 0), textcolor=color.new(color.black, 0), location=location.belowbar)
-plotshape(isRviNegDiv, text='RVI N', style=shape.labeldown, color=color.new(color.red, 0), textcolor=color.new(color.black, 0), location=location.abovebar)
+// plotshape(isRviPosDiv, text='RVI P', style=shape.labelup, color=color.new(color.lime, 0), textcolor=color.new(color.black, 0), location=location.belowbar)
+// plotshape(isRviNegDiv, text='RVI N', style=shape.labeldown, color=color.new(color.red, 0), textcolor=color.new(color.black, 0), location=location.abovebar)
 
 
 ///
