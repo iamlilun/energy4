@@ -250,8 +250,7 @@ plotshape(isRsiPosDiv, text='RSI P', style=shape.labelup, color=color.new(color.
 plotshape(isRsiNegDiv, text='RSI N', style=shape.labeldown, color=color.new(color.red, 0), textcolor=color.new(color.black, 0), location=location.abovebar)
 
 ///
-/// OSC中的蔡金或區間震盪背離
-/// 先用蔡金的
+/// OSC蔡金的漲跌判斷
 ///
 var cmfCumVol = 0.
 cmfCumVol += nz(volume)
@@ -260,14 +259,14 @@ if barstate.islast and cmfCumVol == 0
 short = input.int(3, minval=1, title="OSC Fast Length")
 long = input.int(10, minval=1, title="OSC Slow Length")
 osc = ta.ema(ta.accdist, short) - ta.ema(ta.accdist, long)
-bool isOscPosDiv = positive_divergence(osc, 0) > 0 //判斷OSC是否看漲背離
-bool isOscNegDiv = negative_divergence(osc, 0) > 0 //判斷OSC是否看跌背離
-plotshape(isOscPosDiv, text='OSC P', style=shape.labelup, color=color.new(color.lime, 0), textcolor=color.new(color.black, 0), location=location.belowbar)
-plotshape(isOscNegDiv, text='OSC N', style=shape.labeldown, color=color.new(color.red, 0), textcolor=color.new(color.black, 0), location=location.abovebar)
+bool isOscPos = ta.crossover(osc, 0)  //判斷OSC是否看漲
+bool isOscNeg = ta.crossunder(osc, 0) //判斷OSC是否看跌
+// plotshape(isOscPos, text='OSC P', style=shape.labelup, color=color.new(color.lime, 0), textcolor=color.new(color.black, 0), location=location.belowbar)
+// plotshape(isOscNeg, text='OSC N', style=shape.labeldown, color=color.new(color.red, 0), textcolor=color.new(color.black, 0), location=location.abovebar)
 
 
 ///
-/// OBV 背離判斷.
+/// OBV 漲跌判斷
 ///
 var obvCumVol = 0.
 obvCumVol += nz(volume)
@@ -275,10 +274,10 @@ if barstate.islast and obvCumVol == 0
     runtime.error("No volume is provided by the data vendor.")
 obvSrc = close
 obv = ta.cum(math.sign(ta.change(obvSrc)) * volume)
-bool isObvPosDiv = positive_divergence(obv, 0) > 0 //判斷OBV是否看漲背離
-bool isObvNegDiv = negative_divergence(obv, 0) > 0 //判斷OBV是否看跌背離
-plotshape(isObvPosDiv, text='OBV P', style=shape.labelup, color=color.new(color.lime, 0), textcolor=color.new(color.black, 0), location=location.belowbar)
-plotshape(isObvNegDiv, text='OBV N', style=shape.labeldown, color=color.new(color.red, 0), textcolor=color.new(color.black, 0), location=location.abovebar)
+bool isObvPos = ta.crossover(obv, 0) //判斷obv是否看漲
+bool isObvNeg = ta.crossunder(obv, 0) //判斷obv是否看跌
+// plotshape(isObvPos, text='OBV P', style=shape.labelup, color=color.new(color.lime, 0), textcolor=color.new(color.black, 0), location=location.belowbar)
+// plotshape(isObvNeg, text='OBV N', style=shape.labeldown, color=color.new(color.red, 0), textcolor=color.new(color.black, 0), location=location.abovebar)
 
 
 //* -------------------------------
@@ -317,33 +316,37 @@ weak_volume_weighting_factor = 0.4 //弱權重指標
 neutral_volume_weighting_factor = 1 //中立權重指標
 
 //漲勢判斷..
-//呈現弱跌的話..權重為0.6..不然為1
+//呈現弱跌..權重為0.6..不然為1
 weight_bullish = is_Bearish_weak ? 1 - weak_volume_weighting_factor : neutral_volume_weighting_factor
 
-//呈現弱漲的話..權重為1.4
+//呈現弱漲..權重為1.4
 weight_bullish := is_Bullish_weak ? 1 + weak_volume_weighting_factor : weight_bullish
 
-//呈現強跌的話..權重為0.2
+//呈現強跌..權重為0.2
 weight_bullish := is_Bearish_strong ? 1 - strong_volume_weighting_factor : weight_bullish
 
-//呈現強漲的話..權重為1.8
+//呈現強漲..權重為1.8
 weight_bullish := is_Bullish_strong ? 1 + strong_volume_weighting_factor : weight_bullish
 
-///@TODO
-//呈現mfi看漲背離的話
-//呈現mfi看跌背離的話
+//呈現mfi背離30%
+weight_bullish := isMfiPosDiv ? weight_bullish + 3 : 
+   isMfiNegDiv ? weight_bullish - 3 : weight_bullish
 
-//呈現rvi看漲背離的話
-//呈現rvi看跌背離的話
+//呈現rvi背離30%
+weight_bullish := isRviPosDiv ? weight_bullish + 3 : 
+   isRviNegDiv ? weight_bullish - 3 : weight_bullish
 
-//呈現rsi看漲背離的話
-//呈現rsi看跌背離的話
+//呈現rsi背離18%
+weight_bullish := isRsiPosDiv ? weight_bullish + 1.8 : 
+   isRsiNegDiv ? weight_bullish - 1.8 : weight_bullish
 
-//呈現osc看漲背離的話
-//呈現osc看跌背離的話
+//呈現osc看漲或看跌11%
+weight_bullish := isOscPos ? weight_bullish + 1.1 : 
+   isOscNeg ? weight_bullish - 1.1 : weight_bullish
 
-//呈現obv看漲背離的話
-//呈現obv看跌背離的話
+//呈現obv看漲或看跌11%
+weight_bullish := isObvPos ? weight_bullish + 1.1 : 
+   isObvNeg ? weight_bullish - 1.1 : weight_bullish
 
 //如果是十字星..權重變回1..
 weight_bullish := is_Doji ? neutral_volume_weighting_factor : weight_bullish
@@ -351,33 +354,37 @@ weight_bullish := is_Doji ? neutral_volume_weighting_factor : weight_bullish
 //--
 
 //弱勢判斷..
-//呈現弱跌的話..權重為1.4..不然為1
+//呈現弱跌..權重為1.4..不然為1
 weight_bearish = is_Bearish_weak ? 1 + weak_volume_weighting_factor : neutral_volume_weighting_factor
 
-//呈現弱漲的話..權重為0.6
+//呈現弱漲..權重為0.6
 weight_bearish := is_Bullish_weak ? 1 - weak_volume_weighting_factor : weight_bearish
 
-//呈現強跌的話..權重為1.8
+//呈現強跌..權重為1.8
 weight_bearish := is_Bearish_strong ? 1 + strong_volume_weighting_factor : weight_bearish
 
-//呈現強漲的話..權重為0.2
+//呈現強漲..權重為0.2
 weight_bearish := is_Bullish_strong ? 1 - strong_volume_weighting_factor : weight_bearish
 
-///@TODO
-//呈現mfi看漲背離的話
-//呈現mfi看跌背離的話
+//呈現mfi背離30%
+weight_bearish := isMfiPosDiv ? weight_bearish - 3 : 
+   isMfiNegDiv ? weight_bearish + 3 : weight_bearish
 
-//呈現rvi看漲背離的話
-//呈現rvi看跌背離的話
+//呈現rvi背離30%
+weight_bearish := isRviPosDiv ? weight_bearish - 3 : 
+   isRviNegDiv ? weight_bearish + 3 : weight_bearish
 
-//呈現rsi看漲背離的話
-//呈現rsi看跌背離的話
+//呈現rsi背離18%
+weight_bearish := isRsiPosDiv ? weight_bearish - 1.8 : 
+   isRsiNegDiv ? weight_bearish + 1.8 : weight_bearish
 
-//呈現osc看漲背離的話
-//呈現osc看跌背離的話
+//呈現osc看漲或看跌11%
+weight_bearish := isOscPos ? weight_bearish - 1.1 : 
+   isOscNeg ? weight_bearish + 1.1 : weight_bearish
 
-//呈現obv看漲背離的話
-//呈現obv看跌背離的話
+//呈現obv看漲或看跌11%
+weight_bearish := isObvPos ? weight_bearish - 1.1 : 
+   isObvNeg ? weight_bearish + 1.1 : weight_bearish
 
 //呈現十字星..權重變回1.
 weight_bearish := is_Doji ? neutral_volume_weighting_factor : weight_bearish
